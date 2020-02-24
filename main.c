@@ -3,7 +3,7 @@
 #include <string.h>
 #include "tree.h"
 
-#define MAX_WORD 100
+#define MAX_WORD 10000
 
 static tree_mode get_mode_from_stdin(int argc, char* argv[]) {
     if (argc > 1 && strlen(argv[1]) == 1 && *argv[1] == 'r') {
@@ -12,20 +12,25 @@ static tree_mode get_mode_from_stdin(int argc, char* argv[]) {
     return REGULAR ;
 }
 
+static int is_letter(char c) {
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+        return 1 ;
+    }
+    return 0 ;
+}
+
 static tree_status get_word(char* word) {
-    char c = 0;
-    if ((c = getchar()) == EOF) {
-            return TREE_FAIL ;
+    char str[MAX_WORD] ;
+    memset(word, 0, MAX_WORD) ;
+    memset(str, 0, MAX_WORD) ;
+    if ((scanf("%s", str)) == EOF) {
+        return TREE_FAIL ;
     }
-    while (c == ' ' || c == '\t' || c == '\n' || c == ',' || c == '.') {
-        if ((c = getchar()) == EOF) {
-            return TREE_FAIL ;
+    int ind = 0 ;
+    for (int i = 0; i < strlen(str); i++) {
+        if (is_letter(str[i])) {
+            word[ind++] = str[i] ;
         }
-    }
-    while (c != ' ' && c != '\t' && c != '\n' && c != ',' && c != '.') {
-        *word = c ;
-        word += 1 ;
-        c = getchar() ;
     }
     return TREE_OK ;
 }
@@ -41,13 +46,14 @@ int main(int argc, char* argv[]) {
         if (get_word(word)) {
             break ;
         }
+        if (!strlen(word)) {
+            continue ;
+        }
 
         if (push_tree(&head, word)) {
             free_tree(&head) ;
             return TREE_FAIL ;
         }
-
-        memset(word, 0, MAX_WORD) ;
     }
 
     memset(word, 0, MAX_WORD) ;
